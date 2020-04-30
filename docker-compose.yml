@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - '5432:5432'
+    env_file:
+      - ./envs/dev.env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  backend:
+    image: scorpio:latest
+    restart: always
+    env_file:
+      - ./envs/dev.env
+    command: sh -c "python manage.py runserver 0:8000"
+    ports:
+      - '8000:8000'
+      - '4777:22'
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/backend
+      - ./media-files:/media-files
+      - ./static-files:/static-files
+
+  frontend:
+    image: scorpio:latest
+    restart: always
+    env_file:
+      - ./envs/dev.env
+    stdin_open: true  # Required for the webpack server to stay alive in docker after 3.4.1
+    command: sh -c "cd /frontend && npm i && npm start"
+    ports:
+      - '3000:3000'
+    links:
+      - backend
+    volumes:
+      - ./frontend:/frontend
+      - ./media-files:/media-files
+      - ./static-files:/static-files
+
+  # no need for nginx and gunicorn for local development environment (see docker-compose.deploy.yml)
+
+volumes:
+  postgres:
+  media-files:
+  static-files:
+
+# compose file reference: https://docs.docker.com/compose/compose-file/

@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:12.1
+    env_file:
+      - ./envs/prod.env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  backend:
+    image: registry.gitlab.propulsion-home.ch/full-stack/batch-11-february-2020/group-projects/scorpio/luna:master
+    restart: always
+    env_file:
+      - ./envs/prod.env
+    command: "sh ../scripts/run.sh"
+    depends_on:
+      - postgres
+    volumes:
+      - frontend:/frontend
+      - media-files:/media-files
+      - static-files:/static-files
+
+  nginx:
+    image: nginx:1.17.6
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - frontend:/frontend
+      - ./nginx:/etc/nginx/conf.d
+      - static-files:/static-files
+      - media-files:/media-files
+      - /etc/letsencrypt:/etc/letsencrypt
+
+
+volumes:
+  postgres:
+  static-files:
+  media-files:
+  frontend:
+# compose file reference: https://docs.docker.com/compose/compose-file/

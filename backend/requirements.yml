@@ -1,0 +1,14 @@
+name: scorpio
+dependencies:
+  - python=3.6
+  - psycopg2
+  - pip:
+      - django==3.0.3
+      - djangorestframework==3.11.0
+      - django-phone-field
+      - django-countries
+      - Pillow
+      - djangorestframework_simplejwt==4.4.0
+      - gunicorn
+      - flake8
+      - django-cors-headers
